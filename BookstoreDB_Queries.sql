@@ -1,7 +1,7 @@
 -- Basic Queries
 -- Retrieve all books along with their authors and categories
 SELECT 
-    b.BookID, b.Title, a.AuthorName, c.CategoryName
+    b.*, a.AuthorName, c.CategoryName
 FROM 
     Books b
 JOIN 
@@ -11,7 +11,7 @@ JOIN
 
 -- Find books that are out of stock (StockQuantity = 0)
 SELECT 
-    BookID, Title, StockQuantity
+    *
 FROM 
     Books
 WHERE 
@@ -52,7 +52,7 @@ JOIN
 -- Subqueries
 -- Find the most expensive book in the Fuction category
 SELECT 
-    TOP 1 b.BookID, b.Title, b.Price
+    TOP 1 b.*
 FROM 
     Books b
 WHERE 
@@ -97,48 +97,3 @@ FROM
 ORDER BY 
     StockValue DESC
 OFFSET 0 ROWS FETCH NEXT 3 ROWS ONLY;
-
-
--- Stored Procedure
--- Stored Procedure: GetBooksByAuthor
-
-CREATE PROCEDURE GetBooksByAuthor
-    @AuthorID INT
-AS
-BEGIN
-    SELECT 
-        b.BookID, b.Title, b.Price, b.StockQuantity
-    FROM 
-        Books b
-    WHERE 
-        b.AuthorID = @AuthorID;
-END;
-
--- execute 
-EXEC GetBooksByAuthor @AuthorID = 2;
-
-
--- Views
--- Create a view TopSellingBooks that lists the top 5 books based on total quantity sold
-
-CREATE VIEW TopSellingBooks AS
-SELECT 
-    b.BookID, b.Title, SUM(od.Quantity) AS TotalQuantitySold
-FROM 
-    Books b
-JOIN 
-    OrderDetails od ON b.BookID = od.BookID
-GROUP BY 
-    b.BookID, b.Title
-ORDER BY 
-    TotalQuantitySold DESC
-OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY; 
-
--- See the content of the TopSellingBooks
-SELECT * FROM TopSellingBooks;
-
--- Indexes
--- Create an index on the Books table for the Title column
-
-CREATE NONCLUSTERED INDEX IDX_Books_Title
-ON Books (Title);
